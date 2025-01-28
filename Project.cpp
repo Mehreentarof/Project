@@ -1,109 +1,130 @@
 #include <iostream>
-#include <vector>
-#include <string>
-
+#include <fstream>
+#include <string> 
 using namespace std;
 
-class Student {
-public:
-    string name;
-    string id;
-    string father_name;
-    string contact_number;
-    string degree;
-    vector<int> marks;
-    double average_marks;
-
-    Student(string name, string id, string father_name, string contact_number, string degree, vector<int> marks) {
-        this->name = name;
-        this->id = id;
-        this->father_name = father_name;
-        this->contact_number = contact_number;
-        this->degree = degree;
-        this->marks = marks;
-        this->average_marks = 0;
-        for (int mark : marks) {
-            this->average_marks += mark;
-        }
-        this->average_marks /= marks.size();
-    }
-
-    void print() {
-        cout << "Name: " << name << endl;
-        cout << "ID: " << id << endl;
-        cout << "Father's Name: " << father_name << endl;
-        cout << "Contact Number: " << contact_number << endl;
-        cout << "Degree: " << degree << endl;
-        cout << "Marks: ";
-        for (int mark : marks) {
-            cout << mark << " ";
-        }
-        cout << endl;
-        cout << "Average Marks: " << average_marks << endl;
-    }
+struct Student 
+{
+    string Name;
+    string Id;
+    string Fathername;
+    string Contactnumber;
+    string Degree;
+    string Department;
+    string semester;
+    float Results[5];
+    float Average;
 };
 
-vector<Student> students;
+void SaveFile(const Student &student); 
 
-void add_student() {
-    string name, id, father_name, contact_number, degree;
-    vector<int> marks;
-
-    cout << "Enter student name: ";
-    getline(cin, name);
-    cout << "Enter student ID: ";
-    getline(cin, id);
-    cout << "Enter father's name: ";
-    getline(cin, father_name);
-    cout << "Enter contact number: ";
-    getline(cin, contact_number);
-    cout << "Enter degree: ";
-    getline(cin, degree);
-
-    for (int i = 0; i < 5; i++) {
-        int mark;
-        cout << "Enter marks for subject " << i + 1 << ": ";
-        cin >> mark;
-        marks.push_back(mark);
+void AddStudent() 
+{
+    Student student;
+    cin.ignore(); 
+    cout << "Enter Student Name: ";
+    getline(cin, student.Name);
+    cout << "Enter Student ID: ";
+    getline(cin, student.Id);
+    cout << "Enter Father's Name: ";
+    getline(cin, student.Fathername);
+    cout << "Enter Contact Number: ";
+    getline(cin, student.Contactnumber);
+    cout << "Enter Degree Program: ";
+    getline(cin, student.Degree);
+    cout<<"Enter department:";
+    getline(cin,student.Department);
+    cout<<"Enter semester:";
+    getline(cin,student.semester);
+    cout << "Enter Marks for 5 Subjects:\n";
+    float total = 0;
+    for (int i = 0; i < 5; i++)
+    {
+        cout << "Subject " << (i + 1) << ": ";
+        cin >> student.Results[i];
+        total += student.Results[i];
     }
+    student.Average = total / 5; 
 
-    students.push_back(Student(name, id, father_name, contact_number, degree, marks));
-    cout << "Student added successfully!" << endl;
+    SaveFile(student); 
+    cout << "Student information saved successfully!\n";
 }
 
-void display_students() {
-    if (students.empty()) {
-        cout << "No students found." << endl;
-    } else {
-        for (Student student : students) {
-            student.print();
-            cout << endl;
+void SaveFile(const Student &student) 
+{
+    ofstream outFile("student_data.txt", ios::app | ios::out); 
+    if (outFile.is_open())
+    {
+        outFile << "Student Details \n";
+        outFile << "Name: " << student.Name << "\n";
+        outFile << "ID: " << student.Id << "\n";
+        outFile << "Father's Name: " << student.Fathername << "\n";
+        outFile << "Contact Number: " << student.Contactnumber << "\n";
+        outFile << "Degree Program: " << student.Degree << "\n";
+        outFile <<"Department:"<<student.Department<<"\n";
+        outFile <<"semester:"<<student.semester<<"\n";
+        outFile << "Marks: ";
+        for (int i = 0; i < 5; i++)
+        {
+            outFile << student.Results[i] << " ";
         }
+        outFile << "\n";
+        outFile << "Average Marks: " << student.Average << "\n";
+        outFile.close();
+    }
+    else
+    {
+        cout << "Error opening file for writing!\n";
     }
 }
 
-int main() {
+void DisplayStudentsData()
+{
+    ifstream inFile("student_data.txt"); 
+    if (inFile.is_open())
+    {
+        string line;
+        cout << "\nAll Students Information:\n";
+        while (getline(inFile, line))
+        {
+            cout << line << "\n";
+        }
+        inFile.close(); 
+    }
+    else
+    {
+        cout << "Error opening file for reading!\n";
+    }
+}
+
+int main() 
+{
     int choice;
 
-    while (true) {
-        cout << "\nStudent Management System" << endl;
-        cout << "1. Add Student" << endl;
-        cout << "2. Display All Students" << endl;
-        cout << "3. Exit" << endl;
+    do 
+    {
+        cout << "\nStudent Management System\n";
+        cout << "1. Add Student\n";
+        cout << "2. Display All Students\n";
+        cout << "3. Exit\n";
         cout << "Enter your choice: ";
         cin >> choice;
 
-        switch (choice) {
-            case 1:
-                add_student();
-                break;
-            case 2:
-                display_students();
-                break;
-            case 3:
-                return 0;
-            default:
-                cout << "Invalid choice." << endl;
+        switch (choice)
+        {
+        case 1:
+            AddStudent();
+            break;
+        case 2:
+            DisplayStudentsData();
+            break;
+        case 3:
+            cout << "Exiting...\n";
+            break;
+        default:
+            cout << "Invalid choice. Please try again later.\n";
         }
-    }
+    } while (choice != 3);
+
+    return 0;
 }
